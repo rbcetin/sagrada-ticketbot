@@ -1,0 +1,9 @@
+# personal data — never commit
+book_config.json
+book_last.png
+# runtime
+chrome-profile/
+__pycache__/
+*.log
+*state.json
+.slots.lock

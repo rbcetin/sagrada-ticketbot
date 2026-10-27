@@ -1,0 +1,9 @@
+{
+  "date": "2026-11-02",
+  "telegram": {"token": "123456:BOT-TOKEN", "chat_id": "123456789"},
+  "people": [
+    {"name": "NAME", "surname": "SURNAME", "passport": "U00000000", "doc_type": "PSP", "issued_by": "OT"},
+    {"name": "NAME2", "surname": "SURNAME2", "passport": "U00000001"}
+  ],
+  "contact": {"name": "NAME", "surname": "SURNAME", "phone": "905000000000", "email": "you@example.com", "country": "TR"}
+}
