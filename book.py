@@ -131,7 +131,7 @@ def field(fid, i):
 async def book(pid, day, hhmm, second, page):
     y, m, d = day.split("-")
     # cookie banner: "Reject optional" may reload the page
-    await page.wait("document.readyState==='complete' && !!document.querySelector('.CalendarDay')", 60, "takvim")
+    await page.wait("document.readyState==='complete' && !!document.querySelector('.CalendarDay')", 60, "calendar")
     if await page.click_text("Reject optional"):
         await asyncio.sleep(3)
         await page.wait("!!document.querySelector('.CalendarDay')", 30, "calendar (after cookies)")
@@ -149,7 +149,7 @@ async def book(pid, day, hhmm, second, page):
     if pid in TWO_STEP:
         # step 1: guide-language or tower tabs; step 2: linked basilica / tower time (may be tabbed too)
         await pick(page, hhmm)
-        await page.wait(f"{TIMES}.filter(t=>t!=={json.dumps(hhmm)}).length>0", 20, "ikinci saat listesi")
+        await page.wait(f"{TIMES}.filter(t=>t!=={json.dumps(hhmm)}).length>0", 20, "second time list")
         await asyncio.sleep(1)
         await pick(page, second, exclude=(hhmm,), strict=False)
     else:
@@ -160,7 +160,7 @@ async def book(pid, day, hhmm, second, page):
         await asyncio.sleep(1)
         await click_time(page, hhmm)
 
-    # 2 x General
+    # N x General
     await page.wait("!!document.getElementById('quantity_1')", 20, "ticket quantity")
     for _ in range(6):
         v = int(await page.ev("document.getElementById('quantity_1').value"))
@@ -179,11 +179,16 @@ async def book(pid, day, hhmm, second, page):
     for i, p in enumerate(CFG["people"]):
         await page.type(field(3711, i), p["name"])
         await page.type(field(3712, i), p["surname"])
-        await page.select(field(3876, i), p.get("doc_type", "PSP"))
-        await page.wait(f"!!document.querySelector('{field(3879, i)}')", 10, "issued by")
-        await page.select(field(3879, i), p.get("issued_by", "OT"))
-        await page.wait(f"!!document.querySelector('{field(3896, i)}')", 10, "passport number")
-        await page.type(field(3896, i), p["passport"])
+        doc = p.get("doc_type", "PSP")
+        await page.select(field(3876, i), doc)
+        if doc == "PSP":                  # only passports ask for the issuing country
+            await page.wait(f"!!document.querySelector('{field(3879, i)}')", 10, "issued by")
+            await page.select(field(3879, i), p.get("issued_by", "OT"))
+        # each document type / country shows its own number field; it is the person's only other text input
+        number = f"""[...document.querySelectorAll('input[id*=".field-"][id$="-bt-1-{i}[0].value"]')]
+            .find(e=>!/field-(3711|3712)-/.test(e.id))"""
+        await page.wait(f"!!({number})", 10, "document number")
+        await page.type(f"#{await page.ev(f'CSS.escape(({number}).id)')}", p["passport"])
 
     # add to cart (+ "No" to the upsell if shown)
     press = "(()=>{const c=[...document.querySelectorAll('button')].filter(b=>/CONTINUE/i.test(b.innerText)&&!b.disabled&&b.offsetParent); if(c.length) c[c.length-1].click()})()"

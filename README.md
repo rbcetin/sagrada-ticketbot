@@ -45,9 +45,35 @@ Then edit `book_config.json`.
 | `date` | The day to watch (`YYYY-MM-DD`). |
 | `telegram` | Where notifications go. |
 | `people` | One entry per ticket. **The number of people is the number of tickets.** Names must match the passports: tickets are named and checked at the door. |
-| `doc_type` | Optional. Document type, default `PSP` (passport). |
-| `issued_by` | Optional. Issuing country, default `OT` (Others). Turkey isn't in the site's list, so use `OT`. |
+| `passport` | The document number, whatever the document type. |
+| `doc_type` | Optional. Document type, default `PSP`. See below. |
+| `issued_by` | Optional, passports only. Issuing country, default `OT`. See below. |
 | `contact` | The buyer's details. The tickets are e-mailed here. |
+
+### `doc_type` values
+
+| Value | Document |
+|---|---|
+| `PSP` | Passport |
+| `DNI` | Spanish national ID card |
+| `NIE` | Spanish foreigner ID number |
+
+### `issued_by` values
+
+Only used when `doc_type` is `PSP`. If your country isn't listed, use `OT`.
+
+| Value | Country | Value | Country |
+|---|---|---|---|
+| `AR` | Argentina | `JP` | Japan |
+| `AU` | Australia | `KR` | Korea |
+| `AT` | Austria | `MX` | Mexico |
+| `BE` | Belgium | `NL` | Netherlands |
+| `BR` | Brazil | `PT` | Portugal |
+| `CA` | Canada | `RO` | Romania |
+| `CN` | China | `ES` | Spain |
+| `FR` | France | `TW` | Taiwan |
+| `DE` | Germany | `US` | USA |
+| `IT` | Italy | `OT` | Others |
 
 `book_config.json` is git-ignored. Never commit it.
 
@@ -111,6 +137,6 @@ After your visit, delete `book_config.json`, `book_last.png` and `chrome-profile
 - **Form fields need real keystrokes.** If a value is set directly, the site ignores it and later fails with `ORD-494`. The bot types each field character by character.
 - **The repeat-email field drops characters when typed fast.** The bot checks the field and retypes it slower if needed.
 - **The first CONTINUE click is sometimes ignored.** The bot clicks again after 8 seconds.
-- **Only the default `doc_type` and `issued_by` are tested.** Other values may show a different passport-number field.
+- **Each document type and country has its own number field on the form.** The bot finds it on the page. Tested end to end with `PSP` + `OT` and `PSP` + `ES`.
 - **The calendar's green days aren't reliable.** A day can look available and still have no slots. The bot only trusts the per-slot API.
 - **Arrive on time.** Late arrivals aren't let in.
